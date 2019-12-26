@@ -13,6 +13,9 @@ namespace Builtins
   id : a -> a
   id x = x
 
+  the : (a : Type) -> (value : a) -> a
+  the _ = id
+
   ||| Id differs from the (=) type where (=) takes 'a' and 'b', but Id requires both types be the same
   data IdPath : a -> a -> Type where
     Refl : IdPath x x
@@ -34,6 +37,9 @@ namespace Builtins
   data Void : Type where
   ||| The eliminator for the `Void` type.
   void : Void -> a
+
+  Not : Type -> Type
+  Not a = a -> Void
 
   interface Uninhabited t where
     total uninhabited : t -> Void
