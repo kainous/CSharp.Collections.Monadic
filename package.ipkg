@@ -2,7 +2,4 @@ package prelude
 
 opts="--nobuiltins --total --partial-eval"
 
-modules = Builtins,
-        , Data.HomSet
-        , Data.Semigroupoid
-        , Prelude.Functor
+modules = Builtins

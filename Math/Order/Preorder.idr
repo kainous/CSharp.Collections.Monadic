@@ -34,7 +34,10 @@ Equivalence (==) where
 
 data B = T | F
 
-data LTE : (p, q : B) -> Type where
+data Implication : (p, q : B) -> Type where
+
+
+
   No  : LTE T F
   Yes1 : LTE T T -> LTE T T
   Yes2 : LTE F x -> LTE F x
@@ -44,7 +47,8 @@ imp T F = F
 imp _ _ = T
 
 mytran : (p : B) -> (q : B) -> (r : B) -> LTE p q -> LTE q r -> LTE p r
-mytran T T r x y = ?mytran_rhs_3
+mytran T T r No y = ?mytran_rhs_3
+mytran T T r (Yes1 x) y = ?mytran_rhs_4
 mytran T F r x y = ?mytran_rhs_4
 mytran F q r x y = ?mytran_rhs_2
 

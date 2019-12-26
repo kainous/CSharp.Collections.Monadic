@@ -3,11 +3,11 @@
 %access public export
 %default total
 
--- ||| The canonical single-element type, also known as the trivially
---  ||| true proposition.
+||| The canonical single-element type, also known as
+||| the trivially true proposition.
 data Unit =
-  ||| The trivial constructor for `()`.
-  MkUnit
+ ||| The trivial constructor for `()`.
+ MkUnit
 
 namespace Builtins
   id : a -> a
@@ -26,8 +26,7 @@ namespace Builtins
   --data Eq a = Refl a a
 
   const : a -> b -> a
-  const x _ = x  
-
+  const x _ = x
 
   ||| The empty type, also known as the trivially false proposition.
   |||
@@ -55,19 +54,40 @@ namespace Builtins
   infixr 14 >>, <<
   infixr 0  |>, <|
 
+  -- can this be replaced with the HomSet version?
   (|>) : a -> (a -> b) -> b
   x |> f = f x
-
+  -- can this be replaced with the HomSet version?
   (<|) : (a -> b) -> a -> b
   f <| x = f x
 
+  -- Note that the pipe application operations here should also be used for the following
+  -- Consider what the following mean for each : composition, products, coproducts
+  -- * SortedMap / HashMap
+  -- ** Composite dictionaries can be created this way
+  -- ** Dictionaries using Pair works this way too
+  -- ** Aren't these actually Dependent Pairs??????
+  -- * Applications of type m a -> m (a -> b) -> m b |||| i.e. lifted application
+  -- ** Dictionaries
+  -- * Applications of type (a -> m b)
+
+
+  -- can this be replaced with the Semigroupoid version?
   (>>) : (a -> b) -> (b -> c) -> a -> c
   f >> g = \x => g (f x)
 
+  -- can this be replaced with the Semigroupoid version?
   (<<) : (b -> c) -> (a -> b) -> a -> c
   g << f = \x => g (f x)
 
-    --curry : {A, B, C : Type} -> ()
+  uncurry : (a -> b -> c) -> Pair a b -> c
+  uncurry f (a, b) = f a b
+
+  curry : (Pair a b -> c) -> a -> b -> c
+  curry f a b = f (a, b)
+
+  cong : {f : t -> u} -> (a = b) -> (f a = f b)
+  cong Refl = Refl
 
   ||| Assert to the totality checker that y is always structurally smaller than
   ||| x (which is typically a pattern argument, and *must* be in normal form
@@ -99,9 +119,9 @@ namespace Builtins
   believe_me : a -> b
   believe_me x = assert_total (prim__believe_me _ _ x)
 
-  --postulate
+  postulate
   funext : {f, g : a -> b} -> ((x : a) -> f x = g x) -> f = g
-  funext x = assert_total (prim__believe_me _ _ x)
+  --funext x = assert_total (prim__believe_me _ _ x)
 
   theorem : {f : (a -> b) -> c} -> f = (\g => f (\x => g x))
   theorem = funext $ \g => Refl

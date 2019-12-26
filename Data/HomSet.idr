@@ -11,11 +11,14 @@ infix 4 ~>
 data Morphism : Type -> Type -> Type where
   Mor : (a -> b) -> Morphism a b
 
+--data Endomorphism : Type where
+--  Endo : (a -> a) -> Endomorphism a
+
 (~>) : Type -> Type -> Type
 (~>) = Morphism
 
-(>>) : Type -> Type -> Type
-(Mor a b) >> (Mor b c) = a ~> c
+--(>>) : Type -> Type -> Type
+--f >> g = ?rhsmor --a ~> c
 
 
 (<|) : (a ~> b) -> a -> b
@@ -53,11 +56,10 @@ infixl 6 .
 (.) : (b -> c) -> (a -> b) -> a -> c
 f . g = \x => f (g x)
 
-{-
+
 Category Type Morphism where
   cComp = \x => g (f x)
   cId = Mor ?id2 -- id
   cCompAssociative (Mor f) (Mor g) (Mor h) = ?rhsass
   cIdRight = ?rhsright
   cIdLeft = ?rhsLeft
--}
