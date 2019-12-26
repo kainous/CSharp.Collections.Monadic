@@ -13,6 +13,9 @@ namespace Builtins
   id : a -> a
   id x = x
 
+  the : (a : Type) -> (value : a) -> a
+  the _ = id
+
   ||| Id differs from the (=) type where (=) takes 'a' and 'b', but Id requires both types be the same
   data IdPath : a -> a -> Type where
     Refl : IdPath x x
@@ -26,7 +29,7 @@ namespace Builtins
   --data Eq a = Refl a a
 
   const : a -> b -> a
-  const x _ = x  
+  const x _ = x
 
 
   ||| The empty type, also known as the trivially false proposition.
@@ -35,6 +38,9 @@ namespace Builtins
   data Void : Type where
   ||| The eliminator for the `Void` type.
   void : Void -> a
+
+  Not : Type -> Type
+  Not a = a -> Void
 
   interface Uninhabited t where
     total uninhabited : t -> Void
