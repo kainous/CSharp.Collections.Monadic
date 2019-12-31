@@ -3,3 +3,7 @@ package prelude
 opts="--nobuiltins --total --partial-eval"
 
 modules = Builtins
+        , Math.Categorical.Magmoid
+        , Math.Categorical.Semigroupoid
+        , Math.Categorical.Category
+        , Math.Categorical.HomSet

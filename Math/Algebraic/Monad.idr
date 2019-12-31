@@ -7,6 +7,8 @@ import Builtins
 postulate
 funext2 : (f, g : a -> b -> c) -> ((x : a) -> (y : b) -> f x y = g x y) -> f = g
 
+
+
 flip : (a -> b -> c) -> b -> a -> c
 flip f a b = f b a
 
@@ -17,8 +19,8 @@ flip f a b = f b a
 data Yoneda : (f : Type -> Type) -> (a : Type) -> Type where
   Yon : ({b : Type} -> (a -> b) -> f b) -> Yoneda f b
 
-Op : (Type -> Type) -> Type -> Type
-Op (Yon s) = ?Op_rhs_2
+--Op : (Type -> Type) -> Type -> Type
+--Op (Yon s) = ?Op_rhs_2
 
 --Op p = Yoneda p
 
