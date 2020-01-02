@@ -14,6 +14,9 @@ import Math.Categorical.Applicative
 --Morph a b = Morph (a -> b)
 
 
+Morph : Type -> Type -> Type
+Morph a b = a -> b
+
 infixr 4 ~>, >>>, >>>>
 ||| HomSet
 public export
