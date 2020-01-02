@@ -4,9 +4,15 @@ import Builtins
 import Math.Categorical.Magmoid
 import Math.Categorical.Semigroupoid
 import Math.Categorical.Category
+import Math.Categorical.Functor
+import Math.Categorical.Applicative
 
 %default total
---%access public export
+%access public export
+
+--Morph : Type -> Type -> Type
+--Morph a b = Morph (a -> b)
+
 
 infixr 4 ~>, >>>, >>>>
 ||| HomSet
@@ -22,18 +28,17 @@ public export
 (~>) : Type -> Type -> Type
 (~>) = Morphism
 
-public export
 Magmoid (~>) where
   compose (Mor f) (Mor g) = Mor (f << g)
 
--- This gets put in Applicative
-export
-(<|) : (a ~> b) -> a -> b
-(Mor f) <| x = f x
+Point ((~>) a) where
+  wrap = const >> Mor
 
-export
-(|>) : a -> (a ~> b) -> b
-x |> (Mor f) = f x
+Apply ((~>) a) where
+  ap (Mor f) (Mor g) = Mor (\x => f x (g x))
+
+Applicative' ((~>) t) where
+
 
 --export
 --id : (a:Type) -> (a ~> a)
@@ -99,12 +104,16 @@ export
 Category' (~>) where
   cid = Mor id
 
-export
-Category (~>) where
-  idIsLeftUnital {x} = qed where
-    qed : cid << x = x
-    qed = ?qed_rhs
-  idIsRightUnital = ?rhsr
+--isIsLeftUnital : (cid : (b ~> b)) -> cid >> x = x
+
+--export
+--Category (~>) where
+--  idIsLeftUnital {f} = cid `compose` f = f
+--  idIsRightUnital = ?rhs2
+  --idIsLeftUnital {x} = qed where
+--    qed : cid << x = x
+    --qed = ?qed_rhs
+  --idIsRightUnital = ?rhsr
 
 rightHomComposition : .{f, g : a ~> b} -> .{h : b ~> c} -> f = g -> f >> h = g >> h
 rightHomComposition Refl = Refl

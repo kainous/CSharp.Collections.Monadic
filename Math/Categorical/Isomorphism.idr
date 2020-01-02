@@ -10,5 +10,10 @@ interface Isomorphism a b where
   constructor MkIso
   to   : a ~> b
   from : b ~> a
+
+interface Isomorphism a b => Equivalence a b where
   toFrom : to << from = id
   fromTo : from << to = id
+
+interface Equivalence a b => Congruence a b where
+  

@@ -1,5 +1,6 @@
 infix 40 ==
 
+
 data (==) : t -> t -> Type where
   Refl : a == a
 
