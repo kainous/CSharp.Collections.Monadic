@@ -3,12 +3,16 @@ module Math.Categorical.Monad
 import Builtins
 import Math.Categorical.Functor
 import Math.Categorical.Applicative
+import Math.Categorical.Magmoid
+import Math.Categorical.Semigroupoid
 
 %default total
 %access public export
 
 interface Bind (f : Type -> Type) where
   bind : (a -> f b) -> f a -> f b
+
+  --- Does this form a semigroupoid? no, but Applicative does
 
 infixl 1 =<<, >>=
 
@@ -18,26 +22,27 @@ infixl 1 =<<, >>=
 (>>=) : Bind f => f a -> (a -> f b) -> f b
 (>>=) = flip bind
 
+-- Do we need applicative??? is Pointed enough?
 interface (Bind f, Applicative' f) => Monad' (f : Type -> Type) where
 
-join : Monad' f => f (f a) -> f a
-join x = x >>= id
+-- This is typically called "join", and this REALLY needs to be an alternative definition for monad
+  fuse : Monad' f => f (f a) -> f a
+  fuse x = x >>= id
+  -- fuse << map fuse = fuse << fuse
+  -- fuse << (map (map f)) = map f << fuse
+  -- fuse << map (wrap) = fuse << wrap = id
 
--- join << map join = join << join
--- join << (map (map f)) = map f << join
--- join << map (wrap) = join << wrap = id
+  --We cannot do this, because Idris doesn't allow us to define bind according to fuse
+  --bind f ma = join (map f ma)
 
---Need monad instance to implement flip, which requires Join
-flip : Monad' m => m (a -> b -> c) -> m (b -> a -> c)
-flip f = join (wrap (wrap (\y, x => extract (wrap y |> ((wrap x) |> f)))))
+--interface Comonad (w : Type -> Type) where
+--  extract : w a -> a
+--  extend  : (w a -> b) -> w a -> w b
 
-{-flip f = join qed where
-  qed : m (m c)
+Bind m => Magmoid (KleisiMorphism m) where
+  compose (Kleisi f) (Kleisi g) = Kleisi (\x => g x >>= f)
 
-  g : m c
-  g =
-    let r = \x => (x |> f) in
-    ?rhs
+infixl 4 >=>
 
-  --join (wrap (\y, x => ?rhs))
-  qed = wrap g-}
+(>=>) : Bind m => (a -> m b) -> (b -> m c) -> (a -> m c)
+f >=> g = \x => f x >>= g

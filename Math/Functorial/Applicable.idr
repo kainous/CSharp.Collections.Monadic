@@ -1,0 +1,9 @@
+module Math.Functorial.Applicable
+
+import Builtins
+
+%default total
+%access public export
+
+interface Applicable (f : Type -> Type) where
+  ap : f (a -> b) -> f a -> f b

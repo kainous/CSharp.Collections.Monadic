@@ -22,21 +22,6 @@ namespace Builtins
   toIdentity : x -> Identity x
   toIdentity x = Id x
 
-  
-
-  ||| Perform substitution in a term according to some equality.
-  replace : {a:_} -> {x:_} -> {y:_} -> {P : a -> Type} -> x = y -> P x -> P y
-  replace Refl prf = prf
-
-  ||| Perform substitution in a term according to some equality.
-  |||
-  ||| Like `replace`, but with an explicit predicate, and applying the rewrite
-  ||| in the other direction, which puts it in a form usable by the `rewrite`
-  ||| tactic and term.
-  rewrite__impl : (P : a -> Type) -> x = y -> P y -> P x
-  rewrite__impl p Refl prf = prf
-
-
   ||| Id differs from the (=) type where (=) takes 'a' and 'b', but Id requires both types be the same
   data IdPath : a -> a -> Type where
     Refl : IdPath x x
