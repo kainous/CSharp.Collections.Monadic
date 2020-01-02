@@ -3,11 +3,11 @@
 %access public export
 %default total
 
--- ||| The canonical single-element type, also known as the trivially
---  ||| true proposition.
+||| The canonical single-element type, also known as
+||| the trivially true proposition.
 data Unit =
-  ||| The trivial constructor for `()`.
-  MkUnit
+ ||| The trivial constructor for `()`.
+ MkUnit
 
 namespace Builtins
   id : a -> a
@@ -52,6 +52,8 @@ namespace Builtins
   const : a -> b -> a
   const x _ = x
 
+  flip : (a -> b -> c) -> (b -> a -> c)
+  flip f x y = f y x
 
   ||| The empty type, also known as the trivially false proposition.
   |||
@@ -80,21 +82,51 @@ namespace Builtins
 
 
   infixr 14 >>, <<
-  infixr 0  |>, <|
+  infixl 0  |>, <|
 
+  -- can this be replaced with the HomSet version?
   (|>) : a -> (a -> b) -> b
   x |> f = f x
-
+  -- can this be replaced with the HomSet version?
   (<|) : (a -> b) -> a -> b
   f <| x = f x
 
+  -- Note that the pipe application operations here should also be used for the following
+  -- Consider what the following mean for each : composition, products, coproducts
+  -- * SortedMap / HashMap
+  -- ** Composite dictionaries can be created this way
+  -- ** Dictionaries using Pair works this way too
+  -- ** Aren't these actually Dependent Pairs??????
+  -- * Applications of type m a -> m (a -> b) -> m b |||| i.e. lifted application
+  -- ** Dictionaries
+  -- * Applications of type (a -> m b)
+
+
+  -- can this be replaced with the Semigroupoid version?
   (>>) : (a -> b) -> (b -> c) -> a -> c
   f >> g = \x => g (f x)
 
+  -- can this be replaced with the Semigroupoid version?
   (<<) : (b -> c) -> (a -> b) -> a -> c
   g << f = \x => g (f x)
 
-    --curry : {A, B, C : Type} -> ()
+  ltrAssociativityOfFunctions : (f : a -> b) -> (g : b -> c) -> (h : c -> d) -> f >> (g >> h) = (f >> g) >> h
+  ltrAssociativityOfFunctions f g h = Refl
+
+  rtlAssociativityOfFunctions : (f : c -> d) -> (g : b -> c) -> (h : a -> b) -> f << (g << h) = (f << g) << h
+  rtlAssociativityOfFunctions f g h = Refl
+
+  uncurry : (a -> b -> c) -> Pair a b -> c
+  uncurry f (a, b) = f a b
+
+  curry : (Pair a b -> c) -> a -> b -> c
+  curry f a b = f (a, b)
+
+  cong : .{f : t -> u} -> a = b -> f a = f b
+  cong Refl = Refl
+
+  uncong : {f, g : t -> u} -> f = g -> f x = g x
+  uncong Refl = Refl
 
   ||| Assert to the totality checker that y is always structurally smaller than
   ||| x (which is typically a pattern argument, and *must* be in normal form
@@ -118,6 +150,18 @@ namespace Builtins
   idris_crash : (msg : String) -> a
   -- compiled as primitive
 
+  ||| Perform substitution in a term according to some equality.
+  replace : {a:_} -> {x:_} -> {y:_} -> {P : a -> Type} -> x = y -> P x -> P y
+  replace Refl prf = prf
+
+  ||| Perform substitution in a term according to some equality.
+  |||
+  ||| Like `replace`, but with an explicit predicate, and applying the rewrite
+  ||| in the other direction, which puts it in a form usable by the `rewrite`
+  ||| tactic and term.
+  rewrite__impl : (P : a -> Type) -> x = y -> P y -> P x
+  rewrite__impl p Refl prf = prf
+
   %used idris_crash msg
 
   ||| Subvert the type checker. This function is abstract, so it will not reduce in
@@ -126,12 +170,18 @@ namespace Builtins
   believe_me : a -> b
   believe_me x = assert_total (prim__believe_me _ _ x)
 
-  --postulate
+  postulate
   funext : {f, g : a -> b} -> ((x : a) -> f x = g x) -> f = g
-  funext x = assert_total (prim__believe_me _ _ x)
 
-  theorem : {f : (a -> b) -> c} -> f = (\g => f (\x => g x))
-  theorem = funext $ \g => Refl
+  idPoint : id x = x
+  --funext x = assert_total (prim__believe_me _ _ x)
+  idPoint = Refl
+
+  abstractionApplication : {f : a -> b} -> f x = y -> (\z => f z) x = y
+  abstractionApplication Refl = Refl
+
+  compositionOfAbstraction : {f : (a -> b) -> c} -> f = (\g => f (\x => g x))
+  compositionOfAbstraction = funext $ \g => Refl
 
   ||| Subvert the type checker. This function *will*  reduce in the type checker.
   ||| Use it with extreme care - it can result in segfaults or worse!

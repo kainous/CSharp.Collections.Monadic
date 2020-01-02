@@ -8,8 +8,12 @@ infixl 2 <>
 
 infixl 4 <*, *>
 
+
+
 --postulate
 --funext : {f, g : a -> b} -> ((x: a) -> f x = g x) -> f = g
+
+
 
 data MagmaDuality : ty -> Type where
   M : (ty -> ty -> ty) -> MagmaDuality ty
