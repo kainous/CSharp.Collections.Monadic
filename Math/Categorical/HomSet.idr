@@ -8,6 +8,9 @@ import Math.Categorical.Category
 %default total
 --%access public export
 
+Morph : Type -> Type -> Type
+Morph a b = a -> b
+
 infixr 4 ~>, >>>, >>>>
 ||| HomSet
 public export
