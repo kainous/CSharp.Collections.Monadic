@@ -26,8 +26,8 @@ namespace Builtins
   data IdPath : a -> a -> Type where
     Refl : IdPath x x
 
-  data Pair : a -> b -> Type where
-    MkPair : a -> b -> Pair a b
+  data Pair : (A, B : Type) -> Type where
+    MkPair : {A, B : Type} -> (a : A) -> (b : B) -> Pair A B
 
   data DPair : (a : Type) -> (P : a -> Type) -> Type where
     MkDPair : .{P : a -> Type} -> (x : a) -> (pf : P x) -> DPair a P

@@ -29,7 +29,7 @@ Applicative' w => Functor' w where
 ----------------------------------------------- Arrrows?
 
 --Applicative' w => Magmoid w where
-
+{-
 interface Category (mor : obj -> obj -> Type) where
   id : mor a a
   comp : mor a b -> mor b c -> mor a c
@@ -56,7 +56,7 @@ Arrow Morphism where
 
 
 
-Applicative' w => Category (w) where
+Applicative' w => Category (w) where -}
 
 
 ----------------------------------------------- Arrrows?

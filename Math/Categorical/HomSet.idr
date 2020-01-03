@@ -4,7 +4,7 @@ import Builtins
 import Math.Categorical.Magmoid
 import Math.Categorical.Semigroupoid
 import Math.Categorical.Category
-import Math.Categorical.Functor
+import Math.Functorial.Functor
 import Math.Categorical.Applicative
 
 %default total
@@ -12,6 +12,16 @@ import Math.Categorical.Applicative
 
 --Morph : Type -> Type -> Type
 --Morph a b = Morph (a -> b)
+
+interface Morf a b where
+  source : a
+  target : b
+
+interface Morf from to => Cast from to where
+  source : from
+  target : to
+  hom : from -> to
+
 
 
 Morph : Type -> Type -> Type
@@ -120,3 +130,31 @@ Category' (~>) where
 
 rightHomComposition : .{f, g : a ~> b} -> .{h : b ~> c} -> f = g -> f >> h = g >> h
 rightHomComposition Refl = Refl
+
+
+{-
+
+Notions
+Univalence
+
+
+Equality Type : Built in type
+Preorder : an interface with relation qualities
+Category : an interface with algebraic qualities
+•	(happens to be a preorder + algebraic laws on id)
+Equivalence : an interface with preorder qualities
+Congruence : an interface with equivalence qualities
+Morphism : an interface maintaining a source and target of type obj (i.e. within category)
+Pair : a 0-level morphism with source and target identified by left and right elements
+Hom : (is the “internal hom”) a function wrapped into a morphism for use (implements ‘HomSet’) [difference between a → (b → Type) and (a → b) → Type]; source and target are likely Types
+HomSet : an interface, from morphism and applicative, with the notion of having products, etc. (exists on a closed category)
+Cast : a lossy hom of type Type, possibly considered part of an adjoint (why different from Hom??)
+Isomorphism : a bidirectional pair of homs, also (implements adjunction ?? proving unit and counit)
+Equivalence : an isomorphism and preorder with algebraic proof of 2 ids. This is something that can be shown to be univalent
+
+1 External Hom is acquired by using Profunctor on id.
+
+
+
+
+-}

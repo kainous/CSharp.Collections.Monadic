@@ -1,15 +1,22 @@
-module Magma
+module Math.Algebraic.Magma
 
 import Builtins
 
-flip : (a -> b -> c) -> (b -> a -> c)
-flip f a b = f b a
+%default total
+%access public export
 
 mytheorem : {f : (a -> b) -> c} -> f = (\g => f (\x => g x))
 mytheorem = funext <| \_ => Refl
 
 associativityOfFunctions : {f : (a -> b)} -> {g : (b -> c)} -> {h : (c -> d)} -> f >> (g >> h) = (f >> g) >> h
 associativityOfFunctions = funext <| \_ => Refl
+
+infixl 2 <>
+
+interface Magma ty where
+  op : ty -> ty -> ty
+
+--Dual 
 
 --equivariantMappings : f >> g = g >> f
 --equivariantMappings = ?equivariantMappings_rhs
