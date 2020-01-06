@@ -13,28 +13,28 @@ associativityOfFunctions = funext <| \_ => Refl
 
 interface TernaryMagma ty where
   constructor MkTernaryMagma
-  op : ty -> ty -> ty -> ty
+  op3 : ty -> ty -> ty -> ty
 
 interface TernaryMagma ty => Groud ty where
   biunit : ty
   -- only 2 associativities and transivity is necessary to prove the 3rd
-  paraAssociativity1 : {a, b, c, d, e} -> op (op a b c) d e = op a (op b c d) e
-  paraAssociativity2 : {a, b, c, d, e} -> op a (op b c d) e = op a b (op c d e)
-  paraAssociativity3 : {a, b, c, d, e} -> op a b (op c d e) = op (op a b c) d e
+  paraAssociativity1 : {a, b, c, d, e : ty} -> op3 (op3 a b c) d e = op3 a (op3 b c d) e
+  paraAssociativity2 : {a, b, c, d, e : ty} -> op3 a (op3 b c d) e = op3 a b (op3 c d e)
+  paraAssociativity3 : {a, b, c, d, e : ty} -> op3 a b (op3 c d e) = op3 (op3 a b c) d e
 
-  leftBiunitary  : {k : ty} -> k = op h h k
-  rightBiunitary : {k : ty} -> k = op k h h
+  leftBiunitary  : {k : ty} -> k = op3 h h k
+  rightBiunitary : {k : ty} -> k = op3 k h h
 
   -- Grouds can be used to express/derive Relation Algebra
 
 interface Magma ty where
   constructor MkMagma
-  op : ty -> ty -> ty
+  op2 : ty -> ty -> ty
 
 -- can't use infix until Semigroup???
 infixl 2 <>
 (<>) : Magma ty => ty -> ty -> ty
-(<>) = op
+(<>) = op2
 --<L>
 
 associator : Magma ty => (a, b, c : ty) -> (ty, ty)
@@ -79,6 +79,10 @@ interface CommutativeMagma ty => JordanAlgebra ty where
 
 interface Magma ty => MedialMagma ty where
   mediality : {a, b, c, d : ty} -> (a <> b) <> (c <> d) = (a <> c) <> (b <> d)
+  -- By itself, this is more of a generalization of commutativity than of associativity
+  -- however, it should be noted that mediality has a categorical interpretation
+     -- being a magma homomorphism from M * M to M
+     -- see auto magma objects and generalizations to entropic algebras
 
 -- Is this a poor name?
 interface Magma ty => CompositionAlgebra ty where
