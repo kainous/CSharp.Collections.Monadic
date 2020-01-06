@@ -1,3 +1,5 @@
+--module Math.
+
 infixl 4 <>
 
 data Optional a = OneOf a | None
@@ -38,7 +40,7 @@ Semigroup' ty => Semigroup' (AdjoinUnitEx ty) where
 --Semigroup' ty => Semigroup' (AdjoinAbsorbEx ty) where
 --  a <> b = ?rhs
 
-Monoid' ty => Monoid' (AdjoinUnitEx ty) where
+Semigroup' ty => Monoid' (AdjoinUnitEx ty) where
   neutral = None
 
 Semigroup' ty => Semigroup' (AdjoinUnit ty) where

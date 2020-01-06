@@ -37,7 +37,7 @@ flip f x y = f y x
 --flipFlip f = ?flipFlip_rhs
 
 Opposite : Magma ty -> Magma ty
-Opposite (MkMagma f) = MkMagma (flip f)
+Opposite (MkMagma f) = MkMagma (Builtins.flip f)
 
 cong : {f : x -> y} -> (a = b) -> (f a = f b)
 cong Refl = Refl

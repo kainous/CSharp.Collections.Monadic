@@ -158,6 +158,16 @@ namespace Builtins
   postulate
   funext : {f, g : a -> b} -> ((x : a) -> f x = g x) -> f = g
 
+  funext2 : {f, g : a -> b -> c} -> ((x : a) -> (y : b) -> f x y = g x y) -> f = g
+  funext2 h = funext (\x => funext (\y => h x y))
+
+  funext3 : {f, g : a -> b -> c -> d} -> ((x : a) -> (y : b) -> (z : c) -> f x y z = g x y z) -> f = g
+  funext3 h = funext (\x => funext (\y => funext (\z => h x y z)))
+
+  flipOfFlip : Builtins.flip >> Builtins.flip = Builtins.id
+  flipOfFlip = funext3 (\f, x, y => Refl)
+
+
   idPoint : id x = x
   --funext x = assert_total (prim__believe_me _ _ x)
   idPoint = Refl
