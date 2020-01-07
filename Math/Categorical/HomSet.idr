@@ -10,17 +10,24 @@ import Math.Categorical.Applicative
 %default total
 %access public export
 
+
+
+
 --Morph : Type -> Type -> Type
 --Morph a b = Morph (a -> b)
 
-interface Morf a b where
+interface Morfism a b where
   source : a
   target : b
 
-interface Morf from to => Cast from to where
-  source : from
-  target : to
-  hom : from -> to
+(a, b) => Morfism a b where
+  --source = a
+  --target = b
+
+--interface Morf from to => Cast from to where
+--  source : from
+--  target : to
+--  hom : from -> to
 
 
 

@@ -5,11 +5,6 @@ import Builtins
 %default total
 %access public export
 
-mytheorem : {f : (a -> b) -> c} -> f = (\g => f (\x => g x))
-mytheorem = funext <| \_ => Refl
-
-associativityOfFunctions : .{f : (a -> b)} -> .{g : (b -> c)} -> .{h : (c -> d)} -> f >> (g >> h) = (f >> g) >> h
-associativityOfFunctions = funext <| \_ => Refl
 
 interface TernaryMagma ty where
   constructor MkTernaryMagma
@@ -71,6 +66,7 @@ interface Magma ty => CommutativeMagma ty where
 interface Magma ty => FlexibleMagma ty where
   flexibility : {a, b : ty} -> a <> (b <> a) = (a <> b) <> a
 
+||| Composition Algebra = non-commutative
 interface CommutativeMagma ty => JordanAlgebra ty where
   jordanIdentity : {x, y : ty} -> (x <> y) <> (x <> x) = x <> (y <> (x <> x))
   -- it should be noted that 5th powers of Jordan Algebras are well defined concepts. Can this be used?
