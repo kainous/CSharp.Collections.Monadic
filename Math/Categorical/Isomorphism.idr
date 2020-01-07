@@ -16,4 +16,5 @@ interface Isomorphism a b => Equivalence a b where
   fromTo : from << to = id
 
 interface Equivalence a b => Congruence a b where
-  
+
+--https://github.com/jaredloomis/Idris-HoTT/blob/master/Main.idr

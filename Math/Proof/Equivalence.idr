@@ -1,6 +1,8 @@
 infix 40 ==
 
 
+
+
 data (==) : t -> t -> Type where
   Refl : a == a
 
@@ -82,3 +84,65 @@ haeg (MkHae _ g _ _ _) = g
 
 funext2 : {a, b : Type} -> {f, g : a -> b} -> (alpha : f == g)
 funext2
+
+
+{-
+
+infix 4 ~=
+(~=) : (A, B : Type) -> Type
+A ~= B = (a : A -> B ** IsEquiv a)
+
+ide : {A : Type} -> A ~= A
+ide = (id ** equiv idQInv)
+
+equivPath : {A, B : Type} -> A .= B -> A ~= B
+equivPath {A} {B} p =
+    pathInd (\A', B' => const (A' ~= B'))
+            (\_ => ide) A B p
+
+----
+
+postulate univalence      : (a ~= b) -> (a .= b)
+postulate univalenceEquiv : (a .= b) ~= (a ~= b)
+
+-- Doing an actual proof. We will prove that NatClone
+-- is equivalent to Nat, then use the univalence axiom
+-- to conclude that they are equial.
+
+data NatClone = CZ | CS NatClone
+
+natToClone : Nat -> NatClone
+natToClone (S n) = CS (natToClone n)
+natToClone  Z    = CZ
+
+cloneToNat : NatClone -> Nat
+cloneToNat (CS n) = S (cloneToNat n)
+cloneToNat  CZ    = Z
+
+leftSect : Sect cloneToNat natToClone
+leftSect  CZ    = Hrefl
+leftSect (CS n) = ap CS (leftSect n)
+
+rightSect : Sect natToClone cloneToNat
+rightSect  Z    = Hrefl
+rightSect (S n) = ap S (rightSect n)
+
+isEquivNatClone : IsEquiv natToClone
+isEquivNatClone = MkIsEquiv cloneToNat leftSect rightSect
+            (adj natToClone cloneToNat leftSect rightSect)
+
+equivNatClone : Nat ~= NatClone
+equivNatClone = (natToClone ** isEquivNatClone)
+
+equalNatClone : Nat .= NatClone
+equalNatClone = univalence equivNatClone
+
+hfiber : {A, B : Type} -> (f : A -> B) -> (y : B) -> Type
+hfiber {A} f y = (x : A ** f x .= y)
+
+
+
+
+
+
+-}

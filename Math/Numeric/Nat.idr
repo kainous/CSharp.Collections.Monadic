@@ -55,7 +55,9 @@ multInt (Neg x) (Neg y) = Pos (x `mult` y)
 data SternBrocotRational = L SternBrocotRational | R SternBrocotRational
 
 inv : I SternBrocotRational -> I SternBrocotRational
-inv x = ?inv_rhs
+inv (Pos x) = ?inv_rhs_1
+inv Zero = ?inv_rhs_2
+inv (Neg x) = ?inv_rhs_3
 
 
 
