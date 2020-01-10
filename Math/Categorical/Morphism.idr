@@ -3,67 +3,48 @@ module Math.Categorical.HomSet
 import Builtins
 import Math.Categorical.Magmoid
 import Math.Categorical.Semigroupoid
-import Math.Categorical.Category
+--import Math.Categorical.Category
 import Math.Functorial.Functor
-import Math.Categorical.Applicative
+import Math.Functorial.Applicable
+import Math.Functorial.ApplicativeFunctor
+import Math.Topological.Pointed
 
 %default total
 %access public export
 
+data Morphism a b = Mor (a -> b)
 
-
-
---Morph : Type -> Type -> Type
---Morph a b = Morph (a -> b)
-
-interface Morfism a b where
-  source : a
-  target : b
-
-(a, b) => Morfism a b where
-  --source = a
-  --target = b
-
---interface Morf from to => Cast from to where
---  source : from
---  target : to
---  hom : from -> to
-
-
-
-Morph : Type -> Type -> Type
-Morph a b = a -> b
-
-infixr 4 ~>, >>>, >>>>
-||| HomSet
-public export
-data Morphism : Type -> Type -> Type where
-  Mor : (a -> b) -> Morphism a b
-
---public export
---data Endomorphism : Type -> Type where
---  Endo : (a -> a) -> Endomorphism a
-
-public export
+infixr 4 ~>
 (~>) : Type -> Type -> Type
 (~>) = Morphism
 
-Magmoid (~>) where
-  compose (Mor f) (Mor g) = Mor (f << g)
+data Endomorphism = Endo (a -> a)
 
-Point ((~>) a) where
+Pointed ((~>) a) where
   wrap = const >> Mor
 
-Apply ((~>) a) where
+Applicable ((~>) a) where
   ap (Mor f) (Mor g) = Mor (\x => f x (g x))
 
-Applicative' ((~>) t) where
+RawApplicativeFunctor ((~>) t) where
 
+ApplicativeFunctor ((~>) t) where
+  applicativeIdentity (Mor f) = Refl
+  applicativeComposition (Mor x) (Mor f) (Mor g) = Refl
+  applicativeInterchange x (Mor f) = Refl
+  homomorphism f x = ?homom
 
---export
---id : (a:Type) -> (a ~> a)
---id a = Mor id
+Magmoid (~>) where
+  compose (Mor f) (Mor g) = Mor (f >> g)
 
+--RawSemigroupoid (~>) where
+--  compositionIsAssociative = ?rhs
+
+{-Cast (Endomorphism a) (Morphism a a) where
+  cast (Endo f) = Mor f
+
+Cast (Morphism a a) (Endomorphism a) where
+  cast (Mor f) = Endo f-}
 
 --interface Involutive a where
 --  morphism   : a ~> a
@@ -106,7 +87,7 @@ leftComposition Refl = Refl
 
 --flipFlip : {f : a -> b -> c} -> f = flip (flip f)
 --flipFlip = funext <| \_ => (funext <| \_ => Refl)
-
+{-
 export
 Semigroupoid' (~>) where
 
@@ -136,7 +117,7 @@ Category' (~>) where
   --idIsRightUnital = ?rhsr
 
 rightHomComposition : .{f, g : a ~> b} -> .{h : b ~> c} -> f = g -> f >> h = g >> h
-rightHomComposition Refl = Refl
+rightHomComposition Refl = Refl -}
 
 
 {-

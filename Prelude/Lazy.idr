@@ -1,5 +1,8 @@
 module Prelude.Lazy
 
+import Builtins
+import Math.Functorial.Functor
+
 %default total
 %access public export
 
@@ -9,8 +12,8 @@ data Delayed : DelayReason -> Type -> Type where
   ||| Delayed computation
   Delay : {t, a : _} -> (val : a) -> Delayed t a
 
-Force : {t, a : _} -> Delayed t a -> a
-Force (Delay x) = x
+force : {t, a : _} -> Delayed t a -> a
+force (Delay x) = x
 
 -- These are monadic
 %error_reverse
@@ -20,3 +23,17 @@ Lazy t = Delayed LazyValue t
 %error_reverse
 Inf  : Type -> Type
 Inf t = Delayed Infinite t
+
+Functor' (Delayed LazyValue) where
+  map f (Delay val) = Delay (f val)
+
+Functor (Delayed LazyValue) where
+  preservesIdentity    (Delay val) = Refl
+  preservesComposition (Delay val) = Refl
+
+Functor' (Delayed Infinite) where
+  map f (Delay val) = Delay (f val)
+
+Functor (Delayed Infinite) where
+  preservesIdentity    (Delay val) = Refl
+  preservesComposition (Delay val) = Refl

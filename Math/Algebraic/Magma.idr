@@ -1,6 +1,7 @@
 module Math.Algebraic.Magma
 
 import Builtins
+import Math.Categorical.Magmoid
 
 %default total
 %access public export
@@ -32,6 +33,8 @@ infixl 2 <>
 (<>) = op2
 --<L>
 
+data TotalalityArrow
+
 associator : Magma ty => (a, b, c : ty) -> (ty, ty)
 associator a b c = (a <> (b <> c), (a <> b) <> c)
 
@@ -40,6 +43,25 @@ commutator a b = (a <> b, b <> a)
 
 data Opposite : ty -> Type where
   MkOpposite : (f : ty -> ty -> ty) -> Opposite ty
+
+data Morphism a b = Mor (a -> b)
+
+interface Epimorphism a b where
+  eval : a -> b
+  epi  : {g1, g2 : b -> c} -> eval >> g1 = eval >> g2 -> g1 = g2
+
+
+
+  -- herein, we can define Opposite Magma using Dual from Magmoid... However, it's more performant
+  -- to go ahead and define Opposite yourself and prove that Opposite and Dual are judgementally equal
+
+  -- It's also important that looking at Magma as a Category can make >> confusing to people, so it should be
+  -- namespace hidden
+
+-- Associator composed with Epimorphism (equalizing it) ensures it's associative
+-- This is how the group associator and ring associator can be different, but share a general setting.
+
+--interface
 
 --Magma ty => Magma ty where
 --  op = MkOpposite(flip op)
@@ -57,8 +79,6 @@ data Opposite : ty -> Type where
 --equivariantMappings : f >> g = g >> f
 --equivariantMappings = ?equivariantMappings_rhs
 
-interface Pointed ty where
-  Point : ty
 
 interface Magma ty => CommutativeMagma ty where
   commutativity : {a, b : ty} -> a <> b = b <> a
@@ -85,6 +105,8 @@ interface Magma ty => CompositionAlgebra ty where
   conj : ty -> ty
   norm : ty -> ty
   norm x = x <> conj x
+
+
 
   -- matrices are CompositionAlgebras
   -- is Linear Logic a Composition Algebra?

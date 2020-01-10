@@ -1,8 +1,8 @@
-module Math.Categorical.Monad
+module Math.Functorial.Monad
 
 import Builtins
-import Math.Categorical.Functor
-import Math.Categorical.Applicative
+import Math.Functorial.Functor
+import Math.Functorial.Applicative
 import Math.Categorical.Magmoid
 import Math.Categorical.Semigroupoid
 
@@ -23,6 +23,11 @@ infixl 1 =<<, >>=
 (>>=) = flip bind
 
 -- Do we need applicative??? is Pointed enough?
+-- This was rewritten to make implementation of apply and bind more modifiable
+--interface Pointed f => Monad' (f : Type -> Type) where
+
+
+
 interface (Bind f, Applicative' f) => Monad' (f : Type -> Type) where
 
 -- This is typically called "join", and this REALLY needs to be an alternative definition for monad

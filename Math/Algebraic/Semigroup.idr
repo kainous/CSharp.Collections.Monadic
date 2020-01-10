@@ -7,10 +7,10 @@ import Math.Algebraic.Magma
 %access public export
 
 ||| This is NOT an implementation of BinNat, but something to make type compile
-data PosNat = One | PS BinNat
+--data PosNat = One | PS BinNat
 
-fromInteger : Integer -> BinNat
-fromInteger x = One
+--fromInteger : Integer -> BinNat
+--fromInteger x = One
 
 
 --interface Magma ty => FlexibleMagma ty where
@@ -22,9 +22,10 @@ fromInteger x = One
 interface Magma ty => PowerAssociative' ty where
   repeat : (b : PosNat) -> ty -> ty
 
+-- power associative implementation different if monoid than semigroup
 interface PowerAssociative' ty => PowerAssociative ty where
   powerAssociativity : associator
-  --repeatedMonoid : a <> a = repeat 2 a
+  --repeatedMonoid : a <> a = repeat 2 a -- use iter
   repeatedMonoid : repeat 2 a = repeat 2 a
 
 --interface Magma ty => Semigroup' ty where

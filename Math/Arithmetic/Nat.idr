@@ -6,6 +6,11 @@ infixr 4 *
 
 data Nat = Z | S Nat
 
+data IsSucc : (n : Nat) -> Type where
+  ItIsSucc : IsSucc (S n)
+
+PosNat : DPair Nat IsSucc
+
 hyper : Nat -> Nat -> Nat -> Nat
 hyper Z     a b = S b
 hyper (S Z) a Z = a
