@@ -22,7 +22,7 @@ namespace Builtins
   toIdentity : x -> Identity x
   toIdentity x = Id x
 
-  ||| Id differs from the (=) type where (=) takes 'a' and 'b', but Id requires both types be the same
+  -- Id differs from the (=) type where (=) takes 'a' and 'b', but Id requires both types be the same
   infixl 4 ==, ~=~
   data IdPath : a -> a -> Type where
     Refl : IdPath x x
