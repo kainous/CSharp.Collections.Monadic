@@ -5,6 +5,7 @@ import Math.Topological.Pointed
 import Math.Functorial.Functor
 import Math.Functorial.Applicable
 import Math.Functorial.ApplicativeFunctor
+import Math.Functorial.Monad
 
 %default total
 %access public export
@@ -22,6 +23,9 @@ Functor Identity where
   preservesIdentity    (Id x) = Refl
 
 Applicable Identity where
-  ap f x = ?rhs
+  ap (Id f) (Id x) = Id (f x)
 
-RawApplicativeFunctor where
+RawApplicativeFunctor Identity where
+
+RawMonad Identity where
+  

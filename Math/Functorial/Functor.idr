@@ -42,3 +42,18 @@ interface RawFunctor w => Functor (w : Type -> Type) where
 -- Why does this only apply to the second argument?
 --Functor' (Pair a) where
 --  map f (x, y) = (x, f y)
+
+data NaturalTransformation : (obj -> Type) -> (obj -> Type) -> Type where
+  MkNaturalTransformation : (f : obj -> Type) -> (g : obj -> Type) -> NaturalTransformation f g
+
+
+data NaturalComposition : Type -> Type -> Type where
+  MkNaturalComposition : (f, f', g, g' : Type -> Type) -> (a:Type) -> NaturalComposition (f' (f a)) (g' (g a))
+
+-- Bring forward adjunctions
+-- http://www.stephendiehl.com/posts/adjunctions.html
+--vert :
+  --(Functor f, Functor f', Functor g, Functor g') =>
+  --NaturalTransformation f' g' ->
+  --NaturalTransformation f  g  ->
+  --NaturalComposition f f' g g'
