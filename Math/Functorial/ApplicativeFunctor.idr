@@ -11,11 +11,11 @@ import Math.Algebraic.Magma
 %access public export
 
 -- Do we really want functor here yet?
-interface (Pointed w, Applicable w) => RawApplicativeFunctor (w : Type -> Type) where
+interface (Pointed w, Applicable w, RawFunctor w) => RawApplicativeFunctor (w : Type -> Type) where
+  RawFunctor w where
+    map = wrap >> ap
 
-RawApplicativeFunctor w => RawFunctor w where
-  map = wrap >> ap
-
+-- This structure forms the F-algebra
 record FunctorMorphism (w : Type -> Type) a b where
   constructor FunctMorph
   applyFunctMorph : w (a -> b)
@@ -23,11 +23,6 @@ record FunctorMorphism (w : Type -> Type) a b where
 infixl 3 >>>, <<<
 (>>>) : RawApplicativeFunctor w => w (a -> b) -> w (b -> c) -> w (a -> c)
 f >>> g = g |> (f |> wrap (>>))
-
---Applicable w => Applicable (FunctorMorphism w a) where
-  --ap (FunctMorph f) (FunctMorph x) = ap f x
-
---data Endomorphism a = Endo (a -> a)
 
 RawApplicativeFunctor w => Magmoid (FunctorMorphism w) where
   compose (FunctMorph f) (FunctMorph g) = FunctMorph (g |> (f !> (>>)))
@@ -57,6 +52,12 @@ interface (RawApplicativeFunctor w) => ApplicativeFunctor (w : Type -> Type) whe
   applicativeInterchange : (x : a) -> (f : w (a -> b)) -> wrap x |> f = f |> wrap (\g : (a -> b) => g x)
   homomorphism : (f : a -> b) -> (x : a) -> ap {f=w} (wrap f) (wrap x) = wrap (f x)
 
+--rhs2 : ApplicativeFunctor w => (x : w a) -> (f : a -> b) -> (g : b -> c) -> ap (wrap (\x1 => g (f x1))) x = ap (wrap g) (ap (wrap f) x)
+--rhs2 x f g = ?rhs2_rhs
+
+--ApplicativeFunctor w => Functor w where
+--  preservesIdentity x  = applicativeIdentity x
+--  preservesComposition {f} {g} x = rhs2 x f g
 
 
 

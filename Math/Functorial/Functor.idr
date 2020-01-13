@@ -5,9 +5,9 @@ import Builtins
 %default total
 %access public export
 
--- Use w to mean "wrapped"
-interface RawFunctor (w : Type -> Type) where
-  map : (a -> b) -> w a -> w b
+namespace Functor
+  interface RawFunctor (w : Type -> Type) where
+    map : (a -> b) -> w a -> w b
 
 infixr 4 !>, <!, $>, <$
 

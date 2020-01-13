@@ -32,7 +32,10 @@ ApplicativeFunctor ((~>) t) where
   applicativeIdentity (Mor f) = Refl
   applicativeComposition (Mor x) (Mor f) (Mor g) = Refl
   applicativeInterchange x (Mor f) = Refl
-  homomorphism f x = ?homom
+  homomorphism f x = cong (unwrapped f x) where
+    unwrapped : (f : a -> b) -> (x : a) -> (\_ => f x) = const (f x)
+    unwrapped f x = funext (\_ => Refl)
+
 
 Magmoid (~>) where
   compose (Mor f) (Mor g) = Mor (f >> g)

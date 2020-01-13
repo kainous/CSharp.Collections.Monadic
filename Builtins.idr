@@ -16,12 +16,6 @@ namespace Builtins
   the : (a : Type) -> (value : a) -> a
   the _ = id
 
-  data Identity x = Id x
-
-  implicit
-  toIdentity : x -> Identity x
-  toIdentity x = Id x
-
   -- Id differs from the (=) type where (=) takes 'a' and 'b', but Id requires both types be the same
   infixl 4 ==, ~=~
   --data IdPath : a -> a -> Type where
