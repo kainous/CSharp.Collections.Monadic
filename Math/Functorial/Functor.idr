@@ -34,26 +34,14 @@ interface RawFunctor w => Functor (w : Type -> Type) where
     .{f : a -> b} ->
     .{g : b -> c} ->
     -- We use the x to specify which (functor) map we want to use, and to make
-    --  proofs easier
+    --  proofs easier by forcing you to pattern match on it
     (x : w a) ->
     (map (f >> g)) x = (map f >> map g) x
 
-
 -- Why does this only apply to the second argument?
---Functor' (Pair a) where
---  map f (x, y) = (x, f y)
+RawFunctor (Pair a) where
+  map f (x, y) = (x, f y)
 
-data NaturalTransformation : (obj -> Type) -> (obj -> Type) -> Type where
-  MkNaturalTransformation : (f : obj -> Type) -> (g : obj -> Type) -> NaturalTransformation f g
-
-
-data NaturalComposition : Type -> Type -> Type where
-  MkNaturalComposition : (f, f', g, g' : Type -> Type) -> (a:Type) -> NaturalComposition (f' (f a)) (g' (g a))
-
--- Bring forward adjunctions
--- http://www.stephendiehl.com/posts/adjunctions.html
---vert :
-  --(Functor f, Functor f', Functor g, Functor g') =>
-  --NaturalTransformation f' g' ->
-  --NaturalTransformation f  g  ->
-  --NaturalComposition f f' g g'
+--Monoid a => Monad (Pair a) where
+--  join (x, (y, z)) = (x <> y, z)
+--  wrap x = (neutral, x)
