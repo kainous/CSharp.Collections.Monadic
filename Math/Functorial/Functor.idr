@@ -57,3 +57,10 @@ data NaturalComposition : Type -> Type -> Type where
   --NaturalTransformation f' g' ->
   --NaturalTransformation f  g  ->
   --NaturalComposition f f' g g'
+
+
+
+data ListF a x = NilF | ConsF a x
+
+--data Fix f = f (Fix f)
+--data Lis a = Fix (ListF a)

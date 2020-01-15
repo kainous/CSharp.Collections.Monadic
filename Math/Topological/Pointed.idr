@@ -7,3 +7,6 @@ import Builtins
 
 interface Pointed (p : Type -> Type) where
   wrap : a -> p a
+
+--Pointed (Pair a) where
+--  wrap x = (auto, x)
