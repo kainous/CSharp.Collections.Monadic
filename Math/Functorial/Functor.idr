@@ -42,6 +42,10 @@ interface RawFunctor w => Functor (w : Type -> Type) where
 RawFunctor (Pair a) where
   map f (x, y) = (x, f y)
 
+--test0 : Morf B B
+--test0 = map negate negate
+
+
 data NaturalTransformation : (obj -> Type) -> (obj -> Type) -> Type where
   MkNaturalTransformation : (f : obj -> Type) -> (g : obj -> Type) -> NaturalTransformation f g
 
