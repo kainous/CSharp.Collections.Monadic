@@ -1,6 +1,8 @@
 module Math.Functorial.Functor
 
 import Builtins
+import Math.Categorical.Magmoid
+import Math.Categorical.Semigroupoid
 import Math.Categorical.Category
 
 %default total
@@ -20,7 +22,23 @@ interface (RawCategory r, RawCategory t) => PFunctor (p : robj -> xobj -> tobj) 
 interface (RawCategory s, RawCategory t) => QFunctor (q : xobj -> sobj -> tobj) (s : sobj -> sobj -> Type) (t : tobj -> tobj -> Type) where
   second : s a b -> t (q c a) (q c b)
 
---interface (RawCategory a, RawCategory b) => Bifunctor ()
+interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => Bifunct (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
+  bimap : cat1 a1 b1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
+
+infixr 4 ~>
+data (~>) a b = Mor (a -> b)
+
+Magmoid (~>) where
+  compose (Mor f) (Mor g) = Mor (f >> g)
+
+RawSemigroupoid (~>) where
+--  compositionIsAssociative = ?rhs
+
+RawCategory (~>) where
+  id = Mor id
+
+Bifunct Pair (~>) (~>) (~>) where
+  bimap (Mor f) (Mor g) = Mor (\(x, y) => (f x, g y))
 
 
 --interface RawGenBifunctor (f : aobj -> bobj -> cobj) (acat : aobj -> aobj -> Type) (bcat : bobj -> bobj -> Type) where
