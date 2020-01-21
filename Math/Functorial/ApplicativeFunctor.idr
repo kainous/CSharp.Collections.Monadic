@@ -37,24 +37,24 @@ RawFunctor Ident where
 
 data B = T | F
 
-syntax "[%" [f] [x] "%]" = f <! x
+--syntax "[%" [f] [x] "%]" = f <! x
 
-or : B -> B -> B
-or T _ = T
-or F x = x
+--or : B -> B -> B
+--or T _ = T
+--or F x = x
 
-not : B -> B
-not T = F
-not F = T
+--not : B -> B
+--not T = F
+--not F = T
 
-test1 : Ident B
-test1 = Id T
+--test1 : Ident B
+--test1 = Id T
 
-test2 : Ident B
-test2 = Id F
+--test2 : Ident B
+--test2 = Id F
 
-test0 : Ident B
-test0 = [% or test1 test2 %]
+--test0 : Ident B
+--test0 = [% or test1 test2 %]
 
 Pointed Ident where
   wrap = Id

@@ -1,9 +1,30 @@
 module Math.Functorial.Functor
 
 import Builtins
+import Math.Categorical.Category
 
 %default total
 %access public export
+
+interface RawGenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
+  map : source a a' -> target (f a) (f a')
+
+interface RawGenFunctor f cat cat => Endofunctor (f : obj -> obj) (cat : obj -> obj -> Type)
+
+data LiftedFunctor : Type -> Type where
+  Lift : (f : Type -> Type) -> (a : Type) -> LiftedFunctor (f a)
+
+interface (RawCategory r, RawCategory t) => PFunctor (p : robj -> xobj -> tobj) (r : robj -> robj -> Type) (t : tobj -> tobj -> Type) where
+  first : r a b -> t (p a c) (p b c)
+
+interface (RawCategory s, RawCategory t) => QFunctor (q : xobj -> sobj -> tobj) (s : sobj -> sobj -> Type) (t : tobj -> tobj -> Type) where
+  second : s a b -> t (q c a) (q c b)
+
+--interface (RawCategory a, RawCategory b) => Bifunctor ()
+
+
+--interface RawGenBifunctor (f : aobj -> bobj -> cobj) (acat : aobj -> aobj -> Type) (bcat : bobj -> bobj -> Type) where
+
 
 namespace Functor
   interface RawFunctor (w : Type -> Type) where

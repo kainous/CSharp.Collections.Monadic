@@ -1,9 +1,10 @@
 module Math.Categorical.HomSet
 
 import Builtins
+import Math.Order.Preorder
 import Math.Categorical.Magmoid
 import Math.Categorical.Semigroupoid
---import Math.Categorical.Category
+import Math.Categorical.Category
 import Math.Functorial.Functor
 import Math.Functorial.Applicable
 import Math.Functorial.ApplicativeFunctor
@@ -40,8 +41,11 @@ ApplicativeFunctor ((~>) t) where
 Magmoid (~>) where
   compose (Mor f) (Mor g) = Mor (f >> g)
 
---RawSemigroupoid (~>) where
+RawSemigroupoid (~>) where
 --  compositionIsAssociative = ?rhs
+
+RawCategory (~>) where
+  id = Mor id
 
 {-Cast (Endomorphism a) (Morphism a a) where
   cast (Endo f) = Mor f
