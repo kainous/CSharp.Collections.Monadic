@@ -40,7 +40,7 @@ ApplicativeFunctor ((~>) t) where
 Magmoid (~>) where
   compose (Mor f) (Mor g) = Mor (f >> g)
 
---RawSemigroupoid (~>) where
+RawSemigroupoid (~>) where
 --  compositionIsAssociative = ?rhs
 
 {-Cast (Endomorphism a) (Morphism a a) where

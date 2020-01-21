@@ -1,6 +1,9 @@
 module Math.Categorical.Isomorphism
 
-import Math.Categorical.HomSet
+import Builtins
+import Math.Functorial.Functor
+import Math.Categorical.Morphism
+import Math.Categorical.Magmoid
 import Math.Categorical.Semigroupoid
 
 %default total
@@ -11,11 +14,30 @@ interface Isomorphism a b where
   to   : a ~> b
   from : b ~> a
 
-interface Isomorphism a b => Equivalence a b where
-  toFrom : to << from = id
-  fromTo : from << to = id
+Magmoid Isomorphism where
+  compose (MkIso to from) (MkIso to' from') = MkIso (to >> to') (from' >> from)
 
-interface Equivalence (a : t) (b : t) => Congruence a b where
+RawSemigroupoid Isomorphism where
+
+-- Second parameter should be "Representable"
+interface (RawFunctor f, RawFunctor g) => Adjunction f g where
+  unit   : x -> g (f x)
+  counit : f (g x) -> x
+  leftAdjunct  : (f a -> b) -> a -> g b
+  rightAdjunct : (a -> g b) -> f a -> b
+
+  unit   = leftAdjunct id
+  counit = rightAdjunct id
+  leftAdjunct  = map f << unit
+  rightAdjunct = counit << map f
+
+-- Can we find the Adjunctions and then prove that unit and counit is id for Isomorphism???
+
+interface Isomorphism a b => Equivalence a b where
+  toFrom : to << from = Builtins.id
+  fromTo : from << to = Builtins.id
+
+interface Equivalence a b => Congruence a b where
   cong : (f : t -> u) -> Equivalence (f a) (f b)
 --https://github.com/jaredloomis/Idris-HoTT/blob/master/Main.idr
 
