@@ -13,6 +13,7 @@ interface Pointed (p : Type -> Type) where
 PointedObject : Type
 PointedObject = (a : Type ** a)
 
+{-
 data B = T | F
 
 test0 : PointedObject
@@ -34,6 +35,6 @@ test5 : Type
 test5 = test4 test3
 
 test6 : (test5 = B)
-test6 = ?test6_rhs
+test6 = ?test6_rhs -}
 
 --data PointedMorphism (a : PointedObject) (b : PointedObject) where

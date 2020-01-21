@@ -24,14 +24,14 @@ Lazy t = Delayed LazyValue t
 Inf  : Type -> Type
 Inf t = Delayed Infinite t
 
-Functor' (Delayed LazyValue) where
+RawFunctor (Delayed LazyValue) where
   map f (Delay val) = Delay (f val)
 
 Functor (Delayed LazyValue) where
   preservesIdentity    (Delay val) = Refl
   preservesComposition (Delay val) = Refl
 
-Functor' (Delayed Infinite) where
+RawFunctor (Delayed Infinite) where
   map f (Delay val) = Delay (f val)
 
 Functor (Delayed Infinite) where
