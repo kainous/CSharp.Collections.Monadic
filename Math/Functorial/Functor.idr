@@ -8,22 +8,35 @@ import Math.Categorical.Category
 %default total
 %access public export
 
-interface RawGenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
+interface (RawCategory source, RawCategory target) => RawGenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
   map : source a a' -> target (f a) (f a')
 
 interface RawGenFunctor f cat cat => Endofunctor (f : obj -> obj) (cat : obj -> obj -> Type)
 
+interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => RawGenBifunctor (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
+  bimap : cat1 a1 b1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
+
+-- There is a lattice on this
+data Variance
+  = Phantom
+  | Invariant
+  | Covariant
+  | Contravariant
+
+---data List a = Nil | Cons a (List a)
+
+data List : (elem : Type) -> Type where
+  Nil : List elem
+  Cons : (x : elem) -> (xs : List elem) -> List elem
+
+data Manifest : Type where
+  NilM  : Manifest
+  ConsM : Variance -> (cat : obj -> obj -> Type) -> Manifest -> Manifest
+
+--[Variance, RawCategory cat]
+
 data LiftedFunctor : Type -> Type where
   Lift : (f : Type -> Type) -> (a : Type) -> LiftedFunctor (f a)
-
-interface (RawCategory r, RawCategory t) => PFunctor (p : robj -> xobj -> tobj) (r : robj -> robj -> Type) (t : tobj -> tobj -> Type) where
-  first : r a b -> t (p a c) (p b c)
-
-interface (RawCategory s, RawCategory t) => QFunctor (q : xobj -> sobj -> tobj) (s : sobj -> sobj -> Type) (t : tobj -> tobj -> Type) where
-  second : s a b -> t (q c a) (q c b)
-
-interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => Bifunct (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
-  bimap : cat1 a1 b1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
 
 infixr 4 ~>
 data (~>) a b = Mor (a -> b)
@@ -37,9 +50,23 @@ RawSemigroupoid (~>) where
 RawCategory (~>) where
   id = Mor id
 
-Bifunct Pair (~>) (~>) (~>) where
+
+test0 : Manifest
+test0 = ConsM Phantom (~>) (ConsM Invariant (~>) NilM)
+
+partial
+headM : Manifest -> Variance
+headM (ConsM x cat y) = x
+
+data Either a b = Left a | Right b
+
+RawGenBifunctor Pair (~>) (~>) (~>) where
   bimap (Mor f) (Mor g) = Mor (\(x, y) => (f x, g y))
 
+RawGenBifunctor Either (~>) (~>) (~>) where
+  bimap (Mor f) (Mor g) = Mor (\x => case x of
+                                     Left a => Left (f a)
+                                     Right b => Right (g b))
 
 --interface RawGenBifunctor (f : aobj -> bobj -> cobj) (acat : aobj -> aobj -> Type) (bcat : bobj -> bobj -> Type) where
 
