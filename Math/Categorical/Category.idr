@@ -15,7 +15,7 @@ namespace Categorical
   -- More confusingly, there is a meaning for "composing" relations which is closer to the meaning ascribed
   -- by "function composition".
 
-  interface (RawSemigroupoid mor) => RawCategory (mor : obj -> obj -> Type) where
+  interface (RawSemigroupoid mor) => RawCategory (mor : obj -> obj -> Type) | mor where
     id : mor a a
 
   --RawCategory mor => PreorderedSet mor where
