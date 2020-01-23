@@ -8,22 +8,25 @@ import Math.Categorical.Category
 %default total
 %access public export
 
-interface RawGenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
+interface (RawCategory source, RawCategory target) => RawGenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
   map : source a a' -> target (f a) (f a')
+
+interface RawGenFunctor f source target => GenFunctor (f : Type -> Type) (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
+  -- does this property not inherit from Category???
+  idPreservation1 : {x : obj} -> {y : obj'} -> f x = y -> f (id x) = id y
+  idPreservation2 : {x : obj} -> {y : obj'} -> f (id x) = id y -> f x = y
+  composePreservation : {g : t -> u} -> {h : u -> obj} -> f ((g >> h) x) = ((\y => f (g y)) >> (\z => f (h z))) x -- (compose (\u => f (g u)) (\v => f (h v))) y
 
 interface RawGenFunctor f cat cat => Endofunctor (f : obj -> obj) (cat : obj -> obj -> Type)
 
 data LiftedFunctor : Type -> Type where
   Lift : (f : Type -> Type) -> (a : Type) -> LiftedFunctor (f a)
 
-interface (RawCategory r, RawCategory t) => PFunctor (p : robj -> xobj -> tobj) (r : robj -> robj -> Type) (t : tobj -> tobj -> Type) where
-  first : r a b -> t (p a c) (p b c)
-
-interface (RawCategory s, RawCategory t) => QFunctor (q : xobj -> sobj -> tobj) (s : sobj -> sobj -> Type) (t : tobj -> tobj -> Type) where
-  second : s a b -> t (q c a) (q c b)
-
 interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => Bifunct (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
   bimap : cat1 a1 b1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
+
+interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => RawGenProfunctor (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
+  dimap : cat1 b1 a1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
 
 infixr 4 ~>
 data (~>) a b = Mor (a -> b)
@@ -40,6 +43,14 @@ RawCategory (~>) where
 Bifunct Pair (~>) (~>) (~>) where
   bimap (Mor f) (Mor g) = Mor (\(x, y) => (f x, g y))
 
+
+--interface RawGenFunctor f (~>) (~>) => BaseFunc (f : Type -> Type) where
+
+interface BaseFunctor (f : Type -> Type) where
+  mmap : (a -> b) -> f a -> f b
+
+BaseFunctor f => RawGenFunctor f (~>) (~>) where
+  map (Mor g) = Mor (\x => mmap g x)
 
 --interface RawGenBifunctor (f : aobj -> bobj -> cobj) (acat : aobj -> aobj -> Type) (bcat : bobj -> bobj -> Type) where
 
