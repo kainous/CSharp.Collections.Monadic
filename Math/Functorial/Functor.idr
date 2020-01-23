@@ -11,11 +11,11 @@ import Math.Categorical.Category
 interface (RawCategory source, RawCategory target) => RawGenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
   map : source a a' -> target (f a) (f a')
 
-interface RawGenFunctor f source target => GenFunctor (f : Type -> Type) (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
+interface RawGenFunctor f source target => GenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
   -- does this property not inherit from Category???
   idPreservation1 : {x : obj} -> {y : obj'} -> f x = y -> f (id x) = id y
   idPreservation2 : {x : obj} -> {y : obj'} -> f (id x) = id y -> f x = y
-  composePreservation : {g : t -> u} -> {h : u -> obj} -> f ((g >> h) x) = ((\y => f (g y)) >> (\z => f (h z))) x -- (compose (\u => f (g u)) (\v => f (h v))) y
+  composePreservation : {g : t -> u} -> {h : u -> obj} -> f ((g >> h) x) = ((\y => f (g y)) >> (\z => f (h z))) -- (compose (\u => f (g u)) (\v => f (h v))) y
 
 interface RawGenFunctor f cat cat => Endofunctor (f : obj -> obj) (cat : obj -> obj -> Type)
 
