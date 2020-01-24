@@ -29,6 +29,12 @@ interface (RawCategory cat1, RawCategory cat2) =>
 --interface RawThinFunctor (f : Type -> Type) where
 --  map : (a -> b) -> (f a -> f b)
 
+interface RawGenFunctor f source target => GenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
+  -- does this property not inherit from Category???
+  idPreservation1 : {x : obj} -> {y : obj'} -> f x = y -> f (id x) = id y
+  idPreservation2 : {x : obj} -> {y : obj'} -> f (id x) = id y -> f x = y
+  composePreservation : {g : t -> u} -> {h : u -> obj} -> f ((g >> h) x) = ((\y => f (g y)) >> (\z => f (h z))) -- (compose (\u => f (g u)) (\v => f (h v))) y
+
 interface RawGenFunctor f cat cat => Endofunctor (f : obj -> obj) (cat : obj -> obj -> Type)
 
 interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => RawGenBifunctor (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
@@ -47,6 +53,8 @@ data List : (elem : Type) -> Type where
   Nil : List elem
   Cons : (x : elem) -> (xs : List elem) -> List elem
 
+interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => Bifunct (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
+  bimap : cat1 a1 b1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
 data Manifest : Type where
   NilM  : Manifest
   ConsM : Variance -> (cat : obj -> obj -> Type) -> Manifest -> Manifest
@@ -55,6 +63,12 @@ data Manifest : Type where
 
 data LiftedFunctor : Type -> Type where
   Lift : (f : Type -> Type) -> (a : Type) -> LiftedFunctor (f a)
+
+interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => RawGenProfunctor (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
+  dimap : cat1 b1 a1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
+
+infixr 4 ~>
+data (~>) a b = Mor (a -> b)
 
 Magmoid (~>) where
   compose (Mor f) (Mor g) = Mor (f >> g)
@@ -78,6 +92,14 @@ data Either a b = Left a | Right b
 RawGenBifunctor Pair (~>) (~>) (~>) where
   bimap (Mor f) (Mor g) = Mor (\(x, y) => (f x, g y))
 
+
+--interface RawGenFunctor f (~>) (~>) => BaseFunc (f : Type -> Type) where
+
+interface BaseFunctor (f : Type -> Type) where
+  mmap : (a -> b) -> f a -> f b
+
+BaseFunctor f => RawGenFunctor f (~>) (~>) where
+  map (Mor g) = Mor (\x => mmap g x)
 RawGenBifunctor Either (~>) (~>) (~>) where
   bimap (Mor f) (Mor g) = Mor (\x => case x of
                                      Left a => Left (f a)
