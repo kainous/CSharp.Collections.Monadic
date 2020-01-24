@@ -1,20 +1,30 @@
 module Math.Functorial.Bifunctor
 
 import Builtins
+import Math.Categorical.Category
 
 %default total
 %access public export
 
-namespace Functorial
-  interface Bifunctor (p : Type -> Type -> Type) where
-    bimap : (a -> b) -> (c -> d) -> p a c -> p b d
-    bimap f g = first f << second g
+interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) =>
+  RawGenericBifunctor
+    (f : obj1 -> obj2 -> obj3)
+    (cat1 : obj1 -> obj1 -> Type)
+    (cat2 : obj2 -> obj2 -> Type)
+    (cat3 : obj3 -> obj3 -> Type) where
+  bimap : cat1 a1 b1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
 
-    first : (a -> b) -> p a c -> p b c
-    first = flip bimap id
+interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) =>
+  RawGenericProfunctor
+    (f : obj1 -> obj2 -> obj3)
+    (cat1 : obj1 -> obj1 -> Type)
+    (cat2 : obj2 -> obj2 -> Type)
+    (cat3 : obj3 -> obj3 -> Type) where
+  dimap : cat1 b1 a1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
 
-    second : (b -> c) -> p a b -> p a c
-    second = bimap id
+RawGenericBifunctor Pair where
+  bimap f g (x, y) = (f x, g y) -- (f a, f b)
 
-  Bifunctor Pair where
-    bimap f g (x, y) = (f x, g y) -- (f a, f b)
+RawGenericBifunctor Either where
+  bimap f g (Left x)  = Left  (f x)
+  bimap f g (Right y) = Right (g y)

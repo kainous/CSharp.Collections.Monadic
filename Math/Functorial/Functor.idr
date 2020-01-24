@@ -8,8 +8,26 @@ import Math.Categorical.Category
 %default total
 %access public export
 
-interface (RawCategory source, RawCategory target) => RawGenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
-  map : source a a' -> target (f a) (f a')
+infixr 4 ~>
+
+data (~>) a b = Mor (a -> b)
+
+interface (RawCategory cat1, RawCategory cat2) =>
+  RawGenFunctor
+    (f : obj1 -> obj2)
+    (cat1 : obj1 -> obj1 -> Type)
+    (cat2 : obj2 -> obj2 -> Type) where
+  genMap : cat1 a b -> cat2 (f a) (f b)
+
+interface (RawCategory cat1, RawCategory cat2) =>
+  RawGenCofunctor
+    (f : obj1 -> obj2)
+    (cat1 : obj1 -> obj1 -> Type)
+    (cat2 : obj2 -> obj2 -> Type) where
+  genComap : cat1 b a -> cat2 (f a) (f b)
+
+--interface RawThinFunctor (f : Type -> Type) where
+--  map : (a -> b) -> (f a -> f b)
 
 interface RawGenFunctor f cat cat => Endofunctor (f : obj -> obj) (cat : obj -> obj -> Type)
 
@@ -38,9 +56,6 @@ data Manifest : Type where
 data LiftedFunctor : Type -> Type where
   Lift : (f : Type -> Type) -> (a : Type) -> LiftedFunctor (f a)
 
-infixr 4 ~>
-data (~>) a b = Mor (a -> b)
-
 Magmoid (~>) where
   compose (Mor f) (Mor g) = Mor (f >> g)
 
@@ -68,7 +83,12 @@ RawGenBifunctor Either (~>) (~>) (~>) where
                                      Left a => Left (f a)
                                      Right b => Right (g b))
 
---interface RawGenBifunctor (f : aobj -> bobj -> cobj) (acat : aobj -> aobj -> Type) (bcat : bobj -> bobj -> Type) where
+ToFunctor : Manifest -> Type -> Type
+ToFunctor NilM y = y
+--ToFunctor (ConsM x cat z) y = cat -> (ToFunctor z y)
+
+test2 : Type
+test2 = ToFunctor NilM (Either () ())
 
 
 namespace Functor
