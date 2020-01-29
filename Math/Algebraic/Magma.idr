@@ -79,7 +79,6 @@ interface Epimorphism a b where
 --equivariantMappings : f >> g = g >> f
 --equivariantMappings = ?equivariantMappings_rhs
 
-
 interface Magma ty => CommutativeMagma ty where
   commutativity : {a, b : ty} -> a <> b = b <> a
 

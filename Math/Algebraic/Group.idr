@@ -56,6 +56,14 @@ commutator x y = (conjugateBy y x) `product` (inverse y)
 interface Group ty => AbelianGroup ty where
   commutative : commutator {ty} x y = identity
 
+interface Monoid ty => AdditiveMonoid ty where
+-- Isn't this better defined categorically?
+sum : AdditiveMonoid ty => ty -> ty -> ty
+sum a b = a <> b
+
+prod : MultiplicativeMonoid ty => ty -> ty -> ty
+prod a b = a <> b
+
 interface Ring ty where
   Zero : ty
   One  : ty

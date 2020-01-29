@@ -12,7 +12,32 @@ infixr 4 ~>
 
 data (~>) a b = Mor (a -> b)
 
-interface (RawCategory cat1, RawCategory cat2) =>
+--GCurry : (ts : Vect n Type)
+
+-- no requirements
+--interface GroupoidMorphism a b where
+--  to   : a ~> b
+--  from : b ~> a
+
+interface Injective a b where
+  to : a -> b
+  injectivity : (f, g : b -> c) -> to >> f = to >> g
+
+-- add adjunction stuff here
+interface Isomorphism a b where
+  to   : Injective a b
+  from : Injective b a
+
+interface (RawCatego  ry source, RawCategory target, Isomorphism source target) => Pseudofunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
+  --pseudomap : source a b -> target (f a) (f b)
+  --idPreservation1' : {x : obj} -> {y : obj'} -> f x = y -> to (f (id x)) (id y)
+  --idPreservation2' : {x : obj} -> {y : obj'} -> f x = y -> from (id y) (f (id x))
+
+
+interface
+  ( RawCategory cat1
+  , RawCategory cat2) =>
+
   RawGenFunctor
     (f : obj1 -> obj2)
     (cat1 : obj1 -> obj1 -> Type)
@@ -33,12 +58,12 @@ interface RawGenFunctor f source target => GenFunctor (f : obj -> obj') (source 
   -- does this property not inherit from Category???
   idPreservation1 : {x : obj} -> {y : obj'} -> f x = y -> f (id x) = id y
   idPreservation2 : {x : obj} -> {y : obj'} -> f (id x) = id y -> f x = y
-  composePreservation : {g : t -> u} -> {h : u -> obj} -> f ((g >> h) x) = ((\y => f (g y)) >> (\z => f (h z))) -- (compose (\u => f (g u)) (\v => f (h v))) y
+  --composePreservation : {g : t -> u} -> {h : u -> obj} -> f ((g >> h) x) = ((\y => f (g y)) >> (\z => f (h z))) -- (compose (\u => f (g u)) (\v => f (h v))) y
 
 interface RawGenFunctor f cat cat => Endofunctor (f : obj -> obj) (cat : obj -> obj -> Type)
 
 interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => RawGenBifunctor (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
-  bimap : cat1 a1 b1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
+  genBimap : cat1 a1 b1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
 
 -- There is a lattice on this
 data Variance
@@ -55,6 +80,14 @@ data List : (elem : Type) -> Type where
 
 interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => Bifunct (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
   bimap : cat1 a1 b1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
+
+data HList : Type where
+  NilH  : HList
+  ConsH : t -> HList -> HList
+
+s0 : HList
+s0 = ConsH Phantom NilH
+
 data Manifest : Type where
   NilM  : Manifest
   ConsM : Variance -> (cat : obj -> obj -> Type) -> Manifest -> Manifest
@@ -66,9 +99,6 @@ data LiftedFunctor : Type -> Type where
 
 interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => RawGenProfunctor (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
   dimap : cat1 b1 a1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
-
-infixr 4 ~>
-data (~>) a b = Mor (a -> b)
 
 Magmoid (~>) where
   compose (Mor f) (Mor g) = Mor (f >> g)
@@ -90,7 +120,7 @@ headM (ConsM x cat y) = x
 data Either a b = Left a | Right b
 
 RawGenBifunctor Pair (~>) (~>) (~>) where
-  bimap (Mor f) (Mor g) = Mor (\(x, y) => (f x, g y))
+  genBimap (Mor f) (Mor g) = Mor (\(x, y) => (f x, g y))
 
 
 --interface RawGenFunctor f (~>) (~>) => BaseFunc (f : Type -> Type) where
@@ -99,9 +129,10 @@ interface BaseFunctor (f : Type -> Type) where
   mmap : (a -> b) -> f a -> f b
 
 BaseFunctor f => RawGenFunctor f (~>) (~>) where
-  map (Mor g) = Mor (\x => mmap g x)
+  genMap (Mor g) = Mor (\x => mmap g x)
+
 RawGenBifunctor Either (~>) (~>) (~>) where
-  bimap (Mor f) (Mor g) = Mor (\x => case x of
+  genBimap (Mor f) (Mor g) = Mor (\x => case x of
                                      Left a => Left (f a)
                                      Right b => Right (g b))
 

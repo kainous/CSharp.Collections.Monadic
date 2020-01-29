@@ -2,6 +2,7 @@ module Math.Algebraic.Semigroup
 
 import Builtins
 import Math.Algebraic.Magma
+import Math.Numeric.Nat
 
 %default total
 %access public export
