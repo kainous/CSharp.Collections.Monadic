@@ -24,11 +24,11 @@ interface Injective a b where
   injectivity : (f, g : b -> c) -> to >> f = to >> g
 
 -- add adjunction stuff here
-interface Isomorphism a b where
-  to   : Injective a b
-  from : Injective b a
+--interface (RawCategory a, RawCategory b) => GenIsomorphism (a : obj -> obj -> Type) (b : obj' -> obj' -> Type) where
+--  forward : Injective a b
+--  reverse : Injective b a
 
-interface (RawCatego  ry source, RawCategory target, Isomorphism source target) => Pseudofunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
+--interface (GenIsomorphism source target) => Pseudofunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
   --pseudomap : source a b -> target (f a) (f b)
   --idPreservation1' : {x : obj} -> {y : obj'} -> f x = y -> to (f (id x)) (id y)
   --idPreservation2' : {x : obj} -> {y : obj'} -> f x = y -> from (id y) (f (id x))
@@ -51,14 +51,18 @@ interface (RawCategory cat1, RawCategory cat2) =>
     (cat2 : obj2 -> obj2 -> Type) where
   genComap : cat1 b a -> cat2 (f a) (f b)
 
---interface RawThinFunctor (f : Type -> Type) where
---  map : (a -> b) -> (f a -> f b)
+interface RawThinFunctor (f : Type -> Type) where
+  map : (a -> b) -> (f a -> f b)
 
 interface RawGenFunctor f source target => GenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
   -- does this property not inherit from Category???
+  -- This is an isomorphism, or is this an equivalence?
   idPreservation1 : {x : obj} -> {y : obj'} -> f x = y -> f (id x) = id y
   idPreservation2 : {x : obj} -> {y : obj'} -> f (id x) = id y -> f x = y
-  --composePreservation : {g : t -> u} -> {h : u -> obj} -> f ((g >> h) x) = ((\y => f (g y)) >> (\z => f (h z))) -- (compose (\u => f (g u)) (\v => f (h v))) y
+  composePreservation : {x : obj} -> {g : obj -> obj'} -> {h : obj' -> obj''} ->
+    genMap (g >> h) = (genMap g) >> (genMap h)
+
+    --f ((g >> h) x) = ((\y => f (g y)) >> (\z => f (h z))) -- (compose (\u => f (g u)) (\v => f (h v))) y
 
 interface RawGenFunctor f cat cat => Endofunctor (f : obj -> obj) (cat : obj -> obj -> Type)
 
@@ -88,6 +92,8 @@ data HList : Type where
 s0 : HList
 s0 = ConsH Phantom NilH
 
+
+
 data Manifest : Type where
   NilM  : Manifest
   ConsM : Variance -> (cat : obj -> obj -> Type) -> Manifest -> Manifest
@@ -99,6 +105,12 @@ data LiftedFunctor : Type -> Type where
 
 interface (RawCategory cat1, RawCategory cat2, RawCategory cat3) => RawGenProfunctor (f : obj1 -> obj2 -> obj3) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) (cat3 : obj3 -> obj3 -> Type) where
   dimap : cat1 b1 a1 -> cat2 a2 b2 -> cat3 (f a1 a2) (f b1 b2)
+
+--RawGenProfunctor (~>) where
+--  dimap f g h = ?rhs
+
+--(RawGenFunctor f, RawGenFunctor g) => RawCategory
+
 
 Magmoid (~>) where
   compose (Mor f) (Mor g) = Mor (f >> g)
@@ -136,17 +148,27 @@ RawGenBifunctor Either (~>) (~>) (~>) where
                                      Left a => Left (f a)
                                      Right b => Right (g b))
 
-ToFunctor : Manifest -> Type -> Type
-ToFunctor NilM y = y
+--ToFunctor : Manifest -> Type -> Type
+--ToFunctor NilM y = y
 --ToFunctor (ConsM x cat z) y = cat -> (ToFunctor z y)
 
-test2 : Type
-test2 = ToFunctor NilM (Either () ())
+--test2 : Type
+--test2 = ToFunctor NilM (Either () ())
 
+interface RawFunctor (w : Type -> Type) where
+  map : (a -> b) -> w a -> w b
 
-namespace Functor
-  interface RawFunctor (w : Type -> Type) where
-    map : (a -> b) -> w a -> w b
+RawFunctor w => RawGenFunctor w (~>) (~>) where
+  map = ?rhsdf
+
+  --RawFunctor w => RawGenFunctor (w : Type -> Type) (~>) (~>) where
+--    map = ?asdfoin
+
+--SwapFull : (Type -> Type -> Type) -> Type -> Type -> Type -> Type
+--SwapFull w a b c = w c a b
+
+--RawGenFunctor (~>) (~>) => RawFunctor where
+--  map = ?rhs
 
 infixr 4 !>, <!, $>, <$
 
@@ -177,7 +199,7 @@ interface RawFunctor w => Functor (w : Type -> Type) where
     (x : w a) ->
     (map (f >> g)) x = (map f >> map g) x
 
--- Why does this only apply to the second argument?
+-- Why does this only apply to the second argument? Because you need a bifunctor for both
 RawFunctor (Pair a) where
   map f (x, y) = (x, f y)
 

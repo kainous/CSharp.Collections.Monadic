@@ -17,9 +17,20 @@ plusNat : Nat -> Nat -> Nat
 plusNat  Z y = y
 plusNat (S x) y = S (plusNat x y)
 
+multNat : Nat -> Nat -> Nat
+multNat Z _ = Z
+multNat (S n) m = plusNat n (multNat n m)
+
 total
 plus : PosNat -> PosNat -> PosNat
-plus ((S n) ** pfn) (m ** pfm) = (plusNat (S n) m) ** ItIsSucc n
+plus (S n ** _) (m ** _) = (plusNat (S n) m ** ItIsSucc)
+
+total
+mult : PosNat -> PosNat -> PosNat
+mult (n ** pfn) (m ** pfm) =
+  (multNat n m ** timesPos n m pfn pfm) where
+  timesPos : (n, m : Nat) -> IsSucc n -> IsSucc m -> IsSucc (multNat n m)
+  timesPos n@(S _) m@(S _) pfn pfm = ItIsSucc
 
 ---total
 --mult : PosNat -> PosNat -> PosNat
