@@ -5,8 +5,28 @@ import Builtins
 %default total
 %access public export
 
-namespace Categorical
+interface Magmoid (p : obj -> obj -> Type) where
+  constructor MkMagmoid
+  lcompose : (f : p a b) -> (g : p b c) -> p a c
 
+rcompose : Magmoid p => (f : p b c) -> (g : p a b) -> p a c
+rcompose x y = lcompose y x
+
+--Dual : Magmoid p -> Magmoid (flip p)
+--Dual (MkMagmoid lcompose) = MkMagmoid (\a, b, c, f, g => lcompose b a c g f)
+
+--interface RawMagmoid p => Magmoid (p : obj -> obj -> Type) where
+--  isOpposite : {x : p a b} -> {y : p b c} -> lcompose x y = (flip rcompose) x y
+
+--Dual : Magmoid p -> Magmoid (flip p)
+--Dual (MkMagmoid lcompose rcompose) = ?sdfon_1
+
+--Dual (RawMagmoid a) => RawMagmoid (Dual a) where
+
+
+
+{-
+namespace Math.Categorical
   interface Magmoid (p : obj -> obj -> Type) where
     constructor MkMagmoid
     -- This version of compose is opposite (flipped) from the usual notion of compose
@@ -76,3 +96,4 @@ namespace Categorical
 
   --dd : Magmoid p => p = dual (dual p)
   --dd = ?dd_rhs
+-}

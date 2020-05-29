@@ -5,10 +5,10 @@ import Math.Order.Preorder
 import Math.Categorical.Magmoid
 import Math.Categorical.Semigroupoid
 import Math.Categorical.Category
-import Math.Functorial.Functor
-import Math.Functorial.Applicable
-import Math.Functorial.ApplicativeFunctor
 import Math.Topological.Pointed
+--import Math.Functorial.Functor
+--import Math.Functorial.Applicable
+--import Math.Functorial.ApplicativeFunctor
 
 %default total
 %access public export
@@ -24,7 +24,7 @@ data Endomorphism = Endo (a -> a)
 Pointed ((~>) a) where
   wrap = const >> Mor
 
-Applicable ((~>) a) where
+{- Applicable ((~>) a) where
   ap (Mor f) (Mor g) = Mor (\x => f x (g x))
 
 RawApplicativeFunctor ((~>) t) where
@@ -35,7 +35,7 @@ ApplicativeFunctor ((~>) t) where
   applicativeInterchange x (Mor f) = Refl
   homomorphism f x = cong (unwrapped f x) where
     unwrapped : (f : a -> b) -> (x : a) -> (\_ => f x) = const (f x)
-    unwrapped f x = funext (\_ => Refl)
+    unwrapped f x = funext (\_ => Refl) -}
 
 
 Magmoid (~>) where

@@ -3,12 +3,6 @@
 %access public export
 %default total
 
-||| The canonical single-element type, also known as
-||| the trivially true proposition.
-data Unit =
- ||| The trivial constructor for `()`.
- MkUnit
-
 namespace Builtins
   id : a -> a
   id x = x
@@ -16,26 +10,82 @@ namespace Builtins
   the : (a : Type) -> (value : a) -> a
   the _ = id
 
-  -- Id differs from the (=) type where (=) takes 'a' and 'b', but Id requires both types be the same
-  infixl 4 ==, ~=~
-  --data IdPath : a -> a -> Type where
-  --  Refl : IdPath x x
-
-  data Equiv
-
-  data Pair : (A, B : Type) -> Type where
-    MkPair : {A, B : Type} -> (a : A) -> (b : B) -> Pair A B
-
-  data DPair : (a : Type) -> (P : a -> Type) -> Type where
-    MkDPair : .{P : a -> Type} -> (x : a) -> (pf : P x) -> DPair a P
-
-  --data Eq a = Refl a a
-
   const : a -> b -> a
   const x _ = x
 
   flip : (a -> b -> c) -> (b -> a -> c)
   flip f x y = f y x
+
+  subst : {A : Type} -> {a, a' : A} -> (P : A -> Type) -> a = a' -> P a -> P a'
+  subst p Refl x = x
+
+  coerce : {A, B : Type} -> A = B -> A -> B
+  coerce = subst id
+
+  cong : .{f : t -> u} -> a = b -> f a = f b
+  cong Refl = Refl
+
+  uncong : .{f, g : t -> u} -> f = g -> f x = g x
+  uncong Refl = Refl
+
+  ||| The canonical single-element type, also known as
+  ||| the trivially true proposition.
+  data Unit =
+    ||| The trivial constructor for `()`.
+    MkUnit
+
+  interface Magmoid (mor : obj -> obj -> Type) where
+    lcompose : a `mor` b -> b `mor` c -> a `mor` c
+    rcompose : b `mor` c -> a `mor` b -> a `mor` c
+
+    lcompose = flip rcompose
+    rcompose = flip lcompose
+
+  interface Magmoid mor => Semigroupoid (mor : obj -> obj -> Type) where
+    associative : .{f : a `mor` b} -> .{g : b `mor` c} -> .{h : c `mor` d} -> f `lcompose` (g `lcompose` h) = (f `lcompose` g) `lcompose` h
+
+  infixr 14 >>, <<
+
+  (>>) : Semigroupoid mor => a `mor` b -> b `mor` c -> a `mor` c
+  (>>) = lcompose
+
+  (<<) : Semigroupoid mor => b `mor` c -> a `mor` b -> a `mor` c
+  (<<) = rcompose
+
+  interface Magmoid mor => UnitalMagmoid (mor : obj -> obj -> Type) where
+    ident : a `mor` a
+    leftIdent  : (f : a `mor` b) -> ident `lcompose` f = f
+    rightIdent : (f : a `mor` b) -> f `lcompose` ident = f
+
+  interface (UnitalMagmoid mor, Semigroupoid mor) => Category (mor : obj -> obj -> Type) where
+
+  infixl 4 ~>
+
+  data (~>) a b = Mor (a -> b)
+
+  Magmoid (~>) where
+    lcompose (Mor f) (Mor g) = Mor (\x => g (f x))
+    rcompose (Mor f) (Mor g) = Mor (\x => f (g x))
+  UnitalMagmoid (~>) where
+    ident = Mor id
+    leftIdent (Mor f) = cong ?rhs_1
+
+  -- 4 meanings of identity
+  -- * id function
+  -- * Identity monad
+  -- * Id as the equality type
+  -- * id on a category / such as an identity relation
+
+  --interface BicartesianClosedCategory (mor : obj -> obj -> Type) where
+--    exponentiation : a -> b ->
+
+  ||| The type of pairs of types
+  data Pair : (A, B : Type) -> Type where
+    ||| The constructor for a pair of objects
+    MkPair : {A, B : Type} -> (a : A) -> (b : B) -> Pair A B
+
+  data DPair : (a : Type) -> (P : a -> Type) -> Type where
+    MkDPair : .{P : a -> Type} -> (x : a) -> (pf : P x) -> DPair a P
 
   ||| The empty type, also known as the trivially false proposition.
   |||
@@ -56,15 +106,35 @@ namespace Builtins
   absurd : Uninhabited t => (h : t) -> a
   absurd h = void (uninhabited h)
 
-  sym : {left:a} -> {right:b} -> left = right -> right = left
-  sym Refl = Refl
+  -- Id differs from the (=) type where (=) takes 'a' and 'b', but Id requires both types be the same
+  infixl 4 ==, ~=~
+  --data IdPath : a -> a -> Type where
+  --  Refl : IdPath x x
 
-  trans : {a:x} -> {b:y} -> {c:z} -> a = b -> b = c -> a = c
-  trans Refl Refl = Refl
+  --data Eq a = Refl a a
 
+  interface PreorderRelation (ty : Type) (rel : ty -> ty -> Type) where
+    refl  : .{a : ty} -> a `rel` a
+    trans : .{a, b, c : ty} -> a `rel` b -> b `rel` c -> a `rel` c
 
-  infixr 14 >>, <<
-  infixl 0  |>, <|
+  interface SymmetricRelation (ty : Type) (rel : ty -> ty -> Type) where
+    sym : .{a, b : ty} -> a `rel` b -> b `rel` a
+
+  interface (PreorderRelation ty rel, SymmetricRelation ty rel) => EquivalenceRelation (ty : Type) (rel : ty -> ty -> Type) where
+
+  --data Dec : Type -> Type where
+  --  Yes : (prf    :     prop) -> Dec prop
+  --  No  : (contra : Not prop) -> Dec prop
+
+  PreorderRelation Type (=) where
+    refl = Refl
+    trans Refl Refl = Refl
+  SymmetricRelation Type (=) where
+    sym Refl = Refl
+
+  EquivalenceRelation Type (=) where
+
+  infixl 0  |>, <|, ||>, <||
 
   -- can this be replaced with the HomSet version?
   (|>) : a -> (a -> b) -> b
@@ -72,6 +142,12 @@ namespace Builtins
   -- can this be replaced with the HomSet version?
   (<|) : (a -> b) -> a -> b
   f <| x = f x
+
+  (||>) : (a, b) -> (a -> b -> c) -> c
+  (x, y) ||> f = f x y
+
+  (<||) : (a -> b -> c) -> (a, b) -> c
+  f <|| (x, y) = f x y
 
   -- Note that the pipe application operations here should also be used for the following
   -- Consider what the following mean for each : composition, products, coproducts
@@ -85,12 +161,18 @@ namespace Builtins
 
 
   -- can this be replaced with the Semigroupoid version?
-  (>>) : (a -> b) -> (b -> c) -> a -> c
+  {-(>>) : (a -> b) -> (b -> c) -> a -> c
   f >> g = \x => g (f x)
 
   -- can this be replaced with the Semigroupoid version?
   (<<) : (b -> c) -> (a -> b) -> a -> c
   g << f = \x => g (f x)
+
+  data Apartness : (a : ty) -> (b:ty) -> Type where
+    MkApartness : (x:ty) -> (y:ty) -> (prf : Not (x = y)) -> Apartness x y
+
+  --SymmetricRelation Type (Apartness prf) where
+  --  sym prf = ?rhs
 
   ltrAssociativityOfFunctions : (f : a -> b) -> (g : b -> c) -> (h : c -> d) -> f >> (g >> h) = (f >> g) >> h
   ltrAssociativityOfFunctions f g h = Refl
@@ -98,8 +180,8 @@ namespace Builtins
   rtlAssociativityOfFunctions : (f : c -> d) -> (g : b -> c) -> (h : a -> b) -> f << (g << h) = (f << g) << h
   rtlAssociativityOfFunctions f g h = Refl
 
-  uncurry : (a -> b -> c) -> Pair a b -> c
-  uncurry f (a, b) = f a b
+  uncurry : (a -> b -> c) -> (a, b) -> c
+  uncurry = (<||)
 
   curry : (Pair a b -> c) -> a -> b -> c
   curry f a b = f (a, b)
@@ -108,7 +190,7 @@ namespace Builtins
   cong Refl = Refl
 
   uncong : {f, g : t -> u} -> f = g -> f x = g x
-  uncong Refl = Refl
+  uncong Refl = Refl -}
 
   ||| Assert to the totality checker that y is always structurally smaller than
   ||| x (which is typically a pattern argument, and *must* be in normal form
@@ -161,8 +243,8 @@ namespace Builtins
   funext3 : {f, g : a -> b -> c -> d} -> ((x : a) -> (y : b) -> (z : c) -> f x y z = g x y z) -> f = g
   funext3 h = funext (\x => funext (\y => funext (\z => h x y z)))
 
-  flipOfFlip : Builtins.flip >> Builtins.flip = Builtins.id
-  flipOfFlip = funext3 (\f, x, y => Refl)
+  --flipOfFlip : Builtins.flip >> Builtins.flip = Builtins.id
+  --flipOfFlip = funext3 (\f, x, y => Refl)
 
 
   idPoint : id x = x

@@ -39,9 +39,9 @@ interface
   , RawCategory cat2) =>
 
   RawGenFunctor
-    (f : obj1 -> obj2)
     (cat1 : obj1 -> obj1 -> Type)
-    (cat2 : obj2 -> obj2 -> Type) where
+    (cat2 : obj2 -> obj2 -> Type)
+    (f : obj1 -> obj2) where
   genMap : cat1 a b -> cat2 (f a) (f b)
 
 interface (RawCategory cat1, RawCategory cat2) =>
@@ -54,13 +54,39 @@ interface (RawCategory cat1, RawCategory cat2) =>
 interface RawThinFunctor (f : Type -> Type) where
   map : (a -> b) -> (f a -> f b)
 
+interface (RawThinFunctor f, RawThinFunctor g) => Adjunction (f : Type -> Type) (g : Type -> Type) where
+  unit   : a -> g (f a)
+  counit : f (g a) -> a
+  leftAdjunct : (f a -> b) -> a -> g b
+  rightAdjunct : (a -> g b) -> f a -> b
+
+  unit = leftAdjunct id
+  counit = rightAdjunct id
+  leftAdjunct f = map f << unit
+  rightAdjunct f = counit << map f
+
+interface (RawCategory cat1, RawCategory cat2, RawGenFunctor cat1 cat2 f, RawGenFunctor cat2 cat1 g) => GenAdjunction (f : obj1 -> obj2) (g : obj2 -> obj1) (cat1 : obj1 -> obj1 -> Type) (cat2 : obj2 -> obj2 -> Type) where
+  unit'  : a -> g (f a)
+  counit' : f (g a) -> a
+  leftAdjunct' : (f a -> b) -> a -> g b
+  rightAdjunct' : (a -> g b) -> f a -> b
+
+  unit' = leftAdjunct' id
+  counit' = rightAdjunct' id
+  leftAdjunct' f = genMap f << unit'
+  rightAdjunct' f = counit' << genMap f
+
+
+
 interface RawGenFunctor f source target => GenFunctor (f : obj -> obj') (source : obj -> obj -> Type) (target : obj' -> obj' -> Type) where
   -- does this property not inherit from Category???
   -- This is an isomorphism, or is this an equivalence?
   idPreservation1 : {x : obj} -> {y : obj'} -> f x = y -> f (id x) = id y
   idPreservation2 : {x : obj} -> {y : obj'} -> f (id x) = id y -> f x = y
-  composePreservation : {x : obj} -> {g : obj -> obj'} -> {h : obj' -> obj''} ->
-    genMap (g >> h) = (genMap g) >> (genMap h)
+  --composePreservation : {x : obj} -> {g : cat1 a b} -> {h : obj' -> obj''} ->
+
+
+    --genMap (g >> h) = (genMap g) >> (genMap h)
 
     --f ((g >> h) x) = ((\y => f (g y)) >> (\z => f (h z))) -- (compose (\u => f (g u)) (\v => f (h v))) y
 
@@ -139,8 +165,7 @@ RawGenBifunctor Pair (~>) (~>) (~>) where
 
 interface BaseFunctor (f : Type -> Type) where
   mmap : (a -> b) -> f a -> f b
-
-BaseFunctor f => RawGenFunctor f (~>) (~>) where
+{-r f (~>) (~>) where
   genMap (Mor g) = Mor (\x => mmap g x)
 
 RawGenBifunctor Either (~>) (~>) (~>) where
@@ -155,11 +180,11 @@ RawGenBifunctor Either (~>) (~>) (~>) where
 --test2 : Type
 --test2 = ToFunctor NilM (Either () ())
 
-interface RawFunctor (w : Type -> Type) where
-  map : (a -> b) -> w a -> w b
+--interface RawFunctor (w : Type -> Type) where
+--  map : (a -> b) -> w a -> w b
 
-RawFunctor w => RawGenFunctor w (~>) (~>) where
-  map = ?rhsdf
+--RawFunctor w => RawGenFunctor w (~>) (~>) where
+--  map = ?rhsdf
 
   --RawFunctor w => RawGenFunctor (w : Type -> Type) (~>) (~>) where
 --    map = ?asdfoin
@@ -174,22 +199,22 @@ infixr 4 !>, <!, $>, <$
 
 -- We use the notation !> to mean "unwrap, then apply, then wrap"
 
-(<!) : RawFunctor w => (a -> b) -> w a -> w b
+(<!) : RawThinFunctor w => (a -> b) -> w a -> w b
 (<!) = map
 
-(!>) : RawFunctor w => w a -> (a -> b) -> w b
+(!>) : RawThinFunctor w => w a -> (a -> b) -> w b
 (!>) = flip map
 
-(<$) : RawFunctor w => a -> w b -> w a
+(<$) : RawThinFunctor w => a -> w b -> w a
 (<$) = map << const
 
-($>) : RawFunctor w => w a -> b -> w b
+($>) : RawThinFunctor w => w a -> b -> w b
 ($>) = flip (<$)
 
-mapid : RawFunctor w => (x : w a) -> w a
+mapid : RawThinFunctor w => (x : w a) -> w a
 mapid = map id
 
-interface RawFunctor w => Functor (w : Type -> Type) where
+interface RawThinFunctor w => Functor (w : Type -> Type) where
   preservesIdentity    : (x : w a) -> mapid x = x
   preservesComposition :
     .{f : a -> b} ->
@@ -200,7 +225,7 @@ interface RawFunctor w => Functor (w : Type -> Type) where
     (map (f >> g)) x = (map f >> map g) x
 
 -- Why does this only apply to the second argument? Because you need a bifunctor for both
-RawFunctor (Pair a) where
+RawThinFunctor (Pair a) where
   map f (x, y) = (x, f y)
 
 --test0 : Morf B B
@@ -231,3 +256,4 @@ data ListF a x = NilF | ConsF a x
 --Monoid a => Monad (Pair a) where
 --  join (x, (y, z)) = (x <> y, z)
 --  wrap x = (neutral, x)
+-}
